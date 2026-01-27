@@ -5,12 +5,12 @@ import { easeOut } from "motion"
 import { Fragment, useMemo, useState, type ComponentProps, type Dispatch, type SetStateAction } from "react"
 import * as THREE from "three"
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon, ExternalLinkIcon, MusicIcon } from "lucide-react"
-import { SpotifyIcon } from "@/assets/spotify"
 import mercurialWorld from "@/assets/mercurial_world.jpeg"
 import type { HtmlProps } from "@react-three/drei/web/Html"
+import SpotifyIcon from "../../assets/spotify"
 
-const AnimatedMeshToonMaterial = animated("meshToonMaterial")
 const AnimatedRoundedBox = animated(RoundedBox)
+const AnimatedMeshToonMaterial = animated("meshToonMaterial") as any
 
 type HeadphonesProps = {
   headWidth: number

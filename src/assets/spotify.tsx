@@ -1,6 +1,6 @@
 import type { SVGProps } from "react"
 
-export function SpotifyIcon(props: SVGProps<SVGSVGElement>) {
+export default function SpotifyIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256' {...props}>
       {/* Icon from SVG Logos by Gil Barbara - https://raw.githubusercontent.com/gilbarbara/logos/master/LICENSE.txt */}
