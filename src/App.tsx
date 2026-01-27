@@ -1,11 +1,11 @@
 import Scene from "./Scene"
+import Menu from "./menu"
 
-function App() {
+export default function App() {
   return (
     <>
       <Scene />
+      <Menu />
     </>
   )
 }
-
-export default App
