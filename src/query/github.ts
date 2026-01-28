@@ -1,6 +1,6 @@
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query"
-import { queryKeys } from "."
 import { queryGithub } from "@/api/github"
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query"
+import { queryKeys } from "."
 
 export const githubQueryOptions = queryOptions({
   queryKey: queryKeys.github,

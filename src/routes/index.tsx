@@ -1,10 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router"
-import Scene from "@/components/scene"
 import Menu from "@/components/menu"
-import { ClientOnly } from "@tanstack/react-router"
+import Scene from "@/components/scene"
 import { queryKeys } from "@/query"
-import { spotifyQueryOptions } from "@/query/spotify"
 import { githubQueryOptions } from "@/query/github"
+import { spotifyQueryOptions } from "@/query/spotify"
+import { createFileRoute } from "@tanstack/react-router"
 
 export const Route = createFileRoute("/")({
   component: App,

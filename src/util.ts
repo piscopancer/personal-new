@@ -1,5 +1,6 @@
-import * as twColors from "tailwindcss/colors";
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 
-export const colors = {
-  accent: twColors.default.blue,
-};
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}

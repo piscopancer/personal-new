@@ -1,12 +1,24 @@
-import { animated, useSpring, to } from "@react-spring/three"
-import { Center, Html, Outlines, RoundedBox } from "@react-three/drei"
-import { type ThreeElements } from "@react-three/fiber"
-import { easeOut } from "motion"
-import { Fragment, useMemo, useState, type ComponentProps, type Dispatch, type SetStateAction } from "react"
-import * as THREE from "three"
-import { ChevronDownIcon, ChevronUpIcon, CopyIcon, ExternalLinkIcon, MusicIcon } from "lucide-react"
 import mercurialWorld from "@/assets/mercurial_world.jpeg"
+import { animated, useSpring } from "@react-spring/three"
+import { Center, Html, Outlines, RoundedBox } from "@react-three/drei"
 import type { HtmlProps } from "@react-three/drei/web/Html"
+import { type ThreeElements } from "@react-three/fiber"
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  CopyIcon,
+  ExternalLinkIcon,
+} from "lucide-react"
+import { easeOut } from "motion"
+import {
+  Fragment,
+  useMemo,
+  useState,
+  type ComponentProps,
+  type Dispatch,
+  type SetStateAction,
+} from "react"
+import * as THREE from "three"
 import SpotifyIcon from "../../assets/spotify"
 
 const AnimatedRoundedBox = animated(RoundedBox)
@@ -77,7 +89,11 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
     <group {...props}>
       {([-1, 1] as const).map((side) => (
         <Fragment key={side}>
-          <Center left={side === -1} right={side === 1} position={[side * headHalfWidth, 0, 0]}>
+          <Center
+            left={side === -1}
+            right={side === 1}
+            position={[side * headHalfWidth, 0, 0]}
+          >
             {/* pad */}
             <AnimatedRoundedBox
               args={[padW, padH, padD]}
@@ -95,9 +111,16 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
             </AnimatedRoundedBox>
           </Center>
           {/* cup */}
-          <Center left={side === -1} right={side === 1} position={[side * (headHalfWidth - depth + padW), 0, 0]}>
+          <Center
+            left={side === -1}
+            right={side === 1}
+            position={[side * (headHalfWidth - depth + padW), 0, 0]}
+          >
             <RoundedBox args={[cupW, cupH, cupD]} radius={0.1}>
-              <meshToonMaterial color={headphonesColor2} gradientMap={gradientMap} />
+              <meshToonMaterial
+                color={headphonesColor2}
+                gradientMap={gradientMap}
+              />
               <Outlines thickness={2} color={headphonesColor2} />
             </RoundedBox>
             {!audioInfoDetached && (
@@ -108,13 +131,17 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
                 transform
                 scale={3}
                 distanceFactor={1}
-                rotation={[THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(90), THREE.MathUtils.degToRad(-90)]}
+                rotation={[
+                  THREE.MathUtils.degToRad(90),
+                  THREE.MathUtils.degToRad(90),
+                  THREE.MathUtils.degToRad(-90),
+                ]}
               >
                 <button
                   onClick={() => setAudioInfoDetached(true)}
-                  className='text-zinc-200 hover:bg-[#520b8c] bg-[#520b8c]/50 p-2 rounded-full cursor-pointer'
+                  className="text-zinc-200 hover:bg-[#520b8c] bg-[#520b8c]/50 p-2 rounded-full cursor-pointer"
                 >
-                  <ChevronUpIcon className='size-4 stroke-1.5' />
+                  <ChevronUpIcon className="size-4 stroke-1.5" />
                 </button>
               </Html>
             )}
@@ -124,17 +151,30 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
             top
             left={side === -1}
             right={side === 1}
-            position={[side * (headHalfWidth - depth + padW), cupH / 2 - sideBendSink, 0]}
+            position={[
+              side * (headHalfWidth - depth + padW),
+              cupH / 2 - sideBendSink,
+              0,
+            ]}
           >
             <RoundedBox args={[bendW, sideBendH, sideBendD]} radius={0.05}>
-              <meshToonMaterial color={headphonesColor} gradientMap={gradientMap} />
+              <meshToonMaterial
+                color={headphonesColor}
+                gradientMap={gradientMap}
+              />
               <Outlines thickness={2} color={headphonesColor} />
             </RoundedBox>
           </Center>
           {/* top bend */}
           <Center top position={[0, topBandY, 0]}>
-            <RoundedBox args={[headWidth + 2 * (bendW + padW - depth), bendW, sideBendD]} radius={0.05}>
-              <meshToonMaterial color={headphonesColor} gradientMap={gradientMap} />
+            <RoundedBox
+              args={[headWidth + 2 * (bendW + padW - depth), bendW, sideBendD]}
+              radius={0.05}
+            >
+              <meshToonMaterial
+                color={headphonesColor}
+                gradientMap={gradientMap}
+              />
               <Outlines thickness={2} color={headphonesColor} />
             </RoundedBox>
             {audioInfoDetached ? (
@@ -146,7 +186,7 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
               />
             ) : (
               <AudioInfo
-                occlude='blending'
+                occlude="blending"
                 detached={audioInfoDetached}
                 setDetached={setAudioInfoDetached}
                 center
@@ -154,14 +194,24 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
                 transform
                 scale={1.5}
                 distanceFactor={1}
-                rotation={[THREE.MathUtils.degToRad(-90), THREE.MathUtils.degToRad(0), THREE.MathUtils.degToRad(0)]}
+                rotation={[
+                  THREE.MathUtils.degToRad(-90),
+                  THREE.MathUtils.degToRad(0),
+                  THREE.MathUtils.degToRad(0),
+                ]}
               />
             )}
           </Center>
           {/* Cushion */}
           <Center top position={[0, headHalfWidth, 0]}>
-            <RoundedBox args={[headWidth - 0.2, topBandY - headHalfWidth, sideBendD]} radius={0.05}>
-              <meshToonMaterial color={headphonesColor3} gradientMap={gradientMap} />
+            <RoundedBox
+              args={[headWidth - 0.2, topBandY - headHalfWidth, sideBendD]}
+              radius={0.05}
+            >
+              <meshToonMaterial
+                color={headphonesColor3}
+                gradientMap={gradientMap}
+              />
             </RoundedBox>
           </Center>
         </Fragment>
@@ -181,28 +231,35 @@ function AudioInfo({ detached, setDetached, ...props }: AudioInfoProps) {
 
   return (
     <Html {...props}>
-      <article className='bg-zinc-950/50 rounded-full p-1 flex items-center backface-hidden'>
-        <button className='relative flex items-center justify-center text-zinc-200 mr-2 size-8'>
-          <img src={mercurialWorld} className='object-cover rounded-full' />
-          <SpotifyIcon className='absolute -bottom-0.5 -right-0.5 size-3 border-black border rounded-full bg-black' />
+      <article className="bg-zinc-950/50 rounded-full p-1 flex items-center backface-hidden">
+        <button className="relative flex items-center justify-center text-zinc-200 mr-2 size-8">
+          <img src={mercurialWorld} className="object-cover rounded-full" />
+          <SpotifyIcon className="absolute -bottom-0.5 -right-0.5 size-3 border-black border rounded-full bg-black" />
         </button>
-        <header className='flex flex-col mr-2'>
-          <h1 className='text-zinc-200 text-nowrap leading-none mb-0.5'>Mercurial World</h1>
-          <h2 className='text-zinc-400 text-nowrap leading-none text-xs'>Magdalena Bay</h2>
+        <header className="flex flex-col mr-2">
+          <h1 className="text-zinc-200 text-nowrap leading-none mb-0.5">
+            Mercurial World
+          </h1>
+          <h2 className="text-zinc-400 text-nowrap leading-none text-xs">
+            Magdalena Bay
+          </h2>
         </header>
-        <button className='text-zinc-500 hover:bg-zinc-800/80 p-2 rounded-full hover:text-zinc-200 cursor-pointer'>
-          <CopyIcon className='size-4 stroke-1.5' />
+        <button className="text-zinc-500 hover:bg-zinc-800/80 p-2 rounded-full hover:text-zinc-200 cursor-pointer">
+          <CopyIcon className="size-4 stroke-1.5" />
         </button>
-        <a href='#' className='text-zinc-500 hover:bg-zinc-800/80 p-2 rounded-full hover:text-zinc-200'>
-          <ExternalLinkIcon className='size-4 stroke-1.5' />
+        <a
+          href="#"
+          className="text-zinc-500 hover:bg-zinc-800/80 p-2 rounded-full hover:text-zinc-200"
+        >
+          <ExternalLinkIcon className="size-4 stroke-1.5" />
         </a>
         <button
           onClick={() => {
             setDetached((prev) => !prev)
           }}
-          className='text-zinc-500 hover:bg-zinc-800/80 p-2 rounded-full hover:text-zinc-200 cursor-pointer'
+          className="text-zinc-500 hover:bg-zinc-800/80 p-2 rounded-full hover:text-zinc-200 cursor-pointer"
         >
-          <DetachedIcon className='size-4 stroke-1.5' />
+          <DetachedIcon className="size-4 stroke-1.5" />
         </button>
       </article>
     </Html>

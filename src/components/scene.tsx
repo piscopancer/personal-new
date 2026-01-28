@@ -1,10 +1,10 @@
+import Planet from "@/components/planet"
 import { Stars } from "@react-three/drei"
 import { Canvas, useFrame } from "@react-three/fiber"
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing"
+import { ClientOnly } from "@tanstack/react-router"
 import { useRef } from "react"
 import { type Points } from "three"
-import Planet from "@/components/planet"
-import { ClientOnly } from "@tanstack/react-router"
 
 function RotatingStars() {
   const starsRef = useRef<Points>(null!)
@@ -15,7 +15,18 @@ function RotatingStars() {
     starsRef.current.rotation.z += delta * 0.001
   })
 
-  return <Stars ref={starsRef} radius={100} depth={10} count={10000} factor={4} saturation={0} fade speed={1} />
+  return (
+    <Stars
+      ref={starsRef}
+      radius={100}
+      depth={10}
+      count={10000}
+      factor={4}
+      saturation={0}
+      fade
+      speed={1}
+    />
+  )
 }
 
 export default function Scene() {
@@ -28,7 +39,12 @@ export default function Scene() {
           <RotatingStars />
           <Planet />
           <EffectComposer>
-            <Bloom intensity={1} luminanceThreshold={0.2} luminanceSmoothing={0.5} mipmapBlur />
+            <Bloom
+              intensity={1}
+              luminanceThreshold={0.2}
+              luminanceSmoothing={0.5}
+              mipmapBlur
+            />
             <Vignette eskil={false} offset={0.1} darkness={1.1} />
           </EffectComposer>
         </Canvas>

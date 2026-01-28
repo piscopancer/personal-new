@@ -1,8 +1,13 @@
 /// <reference types="vite/client" />
-import type { ReactNode } from "react"
-import { Outlet, createRootRoute, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router"
 import style from "@/style.css?url"
-import { QueryClient, QueryClientConfig, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClient } from "@tanstack/react-query"
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  Scripts,
+} from "@tanstack/react-router"
+import type { ReactNode } from "react"
 
 export const Route = createRootRouteWithContext<{
   qc: QueryClient

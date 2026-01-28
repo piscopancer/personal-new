@@ -1,4 +1,4 @@
-import { QueryClient, QueryKey } from "@tanstack/react-query"
+import { QueryKey } from "@tanstack/react-query"
 
 export const queryKeys = {
   spotify: ["spotify"],

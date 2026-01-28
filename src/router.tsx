@@ -1,7 +1,7 @@
-import { createRouter } from "@tanstack/react-router"
-import { routeTree } from "./routeTree.gen"
-import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query"
 import { QueryClient } from "@tanstack/react-query"
+import { createRouter } from "@tanstack/react-router"
+import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query"
+import { routeTree } from "./routeTree.gen"
 
 export function getRouter() {
   const qc = new QueryClient({
