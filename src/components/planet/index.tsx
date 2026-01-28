@@ -42,7 +42,7 @@ export default function Planet({ listening, ...props }: PlanetProps) {
         <Html distanceFactor={1} position={[0, 0, 0.52]} transform occlude pointerEvents='none'>
           <div className='select-none translate-y-1/2 '>
             <ul className='flex gap-4 justify-center'>
-              <div className='w-28 h-16 bg-white rounded-b-[4rem] rounded-t-xl rotate-1 '></div>
+              <div className='w-28 h-16 bg-white rounded-b-[4rem] rounded-t-xl rotate-1'></div>
               <div className='w-28 h-16 bg-white rounded-b-[4rem] rounded-t-xl -rotate-1' />
             </ul>
             <div className='h-2 w-8 bg-white mx-auto mt-6 rounded-[1px]' />

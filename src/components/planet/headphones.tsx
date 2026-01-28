@@ -35,8 +35,8 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
   const bendW = 0.1
 
   const sideBendSink = 0.1
-  const sideBendD = 0.3
   const sideBendH = 0.6
+  const sideBendD = 0.3
 
   const topBandY = cupH / 2 + sideBendH - bendW - sideBendSink
 
@@ -56,13 +56,13 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
       reset: true,
     },
     from: {
-      emissiveIntensity: 5, // резкий пик (можно даже 1.6–2.0 для драмы)
+      emissiveIntensity: 5,
       padH: padH + 0.1,
       padD: padD + 0.1,
       padScale: [1, 1.1, 1.1],
     },
     to: {
-      emissiveIntensity: 0.5, // базовое спокойное свечение
+      emissiveIntensity: 0.5,
       padH: padH,
       padD: padD,
       padScale: [1, 1, 1],
@@ -71,7 +71,6 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
       duration: 700,
       easing: easeOut,
     },
-    // reset: true,         // ← если loop не нужен, а только один раз по триггеру
   })
 
   return (

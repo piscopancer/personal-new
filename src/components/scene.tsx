@@ -3,7 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber"
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing"
 import { useRef } from "react"
 import { type Points } from "three"
-import Planet from "./components/planet"
+import Planet from "@/components/planet"
 
 function RotatingStars() {
   const starsRef = useRef<Points>(null!)
