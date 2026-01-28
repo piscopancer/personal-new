@@ -4,6 +4,7 @@ import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing"
 import { useRef } from "react"
 import { type Points } from "three"
 import Planet from "@/components/planet"
+import { ClientOnly } from "@tanstack/react-router"
 
 function RotatingStars() {
   const starsRef = useRef<Points>(null!)
@@ -20,21 +21,18 @@ function RotatingStars() {
 export default function Scene() {
   return (
     <div className='h-screen w-full bg-zinc-950 font-["Cascadia_Code"]'>
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-        <ambientLight intensity={0.1} />
-        <directionalLight position={[5, 5, 5]} intensity={2} castShadow />
-        <RotatingStars />
-        <Planet />
-        <EffectComposer>
-          <Bloom
-            intensity={1} // Strength of the glow
-            luminanceThreshold={0.2} // How bright an object must be to glow (0 to 1)
-            luminanceSmoothing={0.5} // Smoothness of the glow transition
-            mipmapBlur // Higher quality blur
-          />
-          <Vignette eskil={false} offset={0.1} darkness={1.1} />
-        </EffectComposer>
-      </Canvas>
+      <ClientOnly fallback={""}>
+        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+          <ambientLight intensity={0.1} />
+          <directionalLight position={[5, 5, 5]} intensity={2} castShadow />
+          <RotatingStars />
+          <Planet />
+          <EffectComposer>
+            <Bloom intensity={1} luminanceThreshold={0.2} luminanceSmoothing={0.5} mipmapBlur />
+            <Vignette eskil={false} offset={0.1} darkness={1.1} />
+          </EffectComposer>
+        </Canvas>
+      </ClientOnly>
     </div>
   )
 }

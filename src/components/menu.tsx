@@ -1,4 +1,4 @@
-import { MessageSquareIcon, MessagesSquareIcon } from "lucide-react"
+import { MessagesSquareIcon } from "lucide-react"
 
 export default function Menu() {
   return (
