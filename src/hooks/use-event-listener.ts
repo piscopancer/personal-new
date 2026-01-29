@@ -3,21 +3,23 @@ import { useEffect, useRef } from "react"
 export function useEventListener<K extends keyof WindowEventMap>(
   eventName: K,
   handler: (event: WindowEventMap[K]) => void,
-  element: Window | HTMLElement = window,
+  element?: Window | HTMLElement | null,
 ) {
   const savedHandler = useRef(handler)
   useEffect(() => {
     savedHandler.current = handler
   }, [handler])
   useEffect(() => {
-    const isSupported = element && element.addEventListener
-    if (!isSupported) return
+    const targetElement: Window | HTMLElement = element ?? window
+    if (!(targetElement && targetElement.addEventListener)) return
     const eventListener = (event: WindowEventMap[K]) =>
       savedHandler.current(event)
-    element.addEventListener(eventName, eventListener as EventListener)
-
+    targetElement.addEventListener(eventName, eventListener as EventListener)
     return () => {
-      element.removeEventListener(eventName, eventListener as EventListener)
+      targetElement.removeEventListener(
+        eventName,
+        eventListener as EventListener,
+      )
     }
   }, [eventName, element])
 }

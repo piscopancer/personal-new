@@ -186,7 +186,7 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
               />
             ) : (
               <AudioInfo
-                occlude="blending"
+                occlude="raycast"
                 detached={audioInfoDetached}
                 setDetached={setAudioInfoDetached}
                 center
