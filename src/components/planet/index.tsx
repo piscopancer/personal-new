@@ -2,8 +2,7 @@ import { animated } from "@react-spring/three"
 import { Html, Outlines, RoundedBox } from "@react-three/drei"
 import { useFrame, type ThreeElements } from "@react-three/fiber"
 import { useRef, useState } from "react"
-import * as THREE from "three"
-import { type Mesh } from "three"
+import { MathUtils, type Mesh } from "three"
 import Headphones from "./headphones"
 
 const AnimatedRoundedBox = animated(RoundedBox)
@@ -19,9 +18,7 @@ export default function Planet({ listening, ...props }: PlanetProps) {
   useFrame((state, delta) => {
     const speed = 1
     const time = state.clock.getElapsedTime()
-    planetRef.current.rotation.x += THREE.MathUtils.degToRad(
-      Math.sin(time) * 0.1,
-    )
+    planetRef.current.rotation.x += MathUtils.degToRad(Math.sin(time) * 0.1)
     planetRef.current.rotation.y += delta * -0.2 * speed
   })
 
@@ -29,9 +26,9 @@ export default function Planet({ listening, ...props }: PlanetProps) {
     <group
       ref={planetRef}
       rotation={[
-        THREE.MathUtils.degToRad(0),
-        THREE.MathUtils.degToRad(0),
-        THREE.MathUtils.degToRad(10),
+        MathUtils.degToRad(0),
+        MathUtils.degToRad(0),
+        MathUtils.degToRad(10),
       ]}
       {...props}
     >

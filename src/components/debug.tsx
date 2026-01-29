@@ -1,4 +1,4 @@
-import * as THREE from "three"
+import { BoxGeometry } from "three"
 
 export default function Debug(props: {
   box?: [number, number, number]
@@ -7,7 +7,7 @@ export default function Debug(props: {
   return (
     <lineSegments>
       <edgesGeometry
-        args={[new THREE.BoxGeometry(...(props.box ? props.box : [1, 1, 1]))]}
+        args={[new BoxGeometry(...(props.box ? props.box : [1, 1, 1]))]}
       />
       <lineBasicMaterial
         color={props.color ?? "fuchsia"}

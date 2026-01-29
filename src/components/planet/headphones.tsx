@@ -1,4 +1,5 @@
 import mercurialWorld from "@/assets/mercurial_world.jpeg"
+import SpotifyIcon from "@/assets/spotify"
 import { animated, useSpring } from "@react-spring/three"
 import { Center, Html, Outlines, RoundedBox } from "@react-three/drei"
 import type { HtmlProps } from "@react-three/drei/web/Html"
@@ -18,11 +19,10 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react"
-import * as THREE from "three"
-import SpotifyIcon from "../../assets/spotify"
+import { DataTexture, MathUtils, NearestFilter, RedFormat } from "three"
 
 const AnimatedRoundedBox = animated(RoundedBox)
-const AnimatedMeshToonMaterial = animated("meshToonMaterial") as any
+const AnimatedMeshToonMaterial = animated("meshToonMaterial")
 
 type HeadphonesProps = {
   headWidth: number
@@ -56,9 +56,9 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
 
   const gradientMap = useMemo(() => {
     const data = new Uint8Array([0, 255])
-    const tex = new THREE.DataTexture(data, 2, 1, THREE.RedFormat)
-    tex.minFilter = THREE.NearestFilter
-    tex.magFilter = THREE.NearestFilter
+    const tex = new DataTexture(data, 2, 1, RedFormat)
+    tex.minFilter = NearestFilter
+    tex.magFilter = NearestFilter
     tex.needsUpdate = true
     return tex
   }, [])
@@ -103,6 +103,7 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
             >
               <AnimatedMeshToonMaterial
                 color={headphonesColor}
+                // @ts-ignore
                 gradientMap={gradientMap}
                 emissive={headphonesColor}
                 emissiveIntensity={spring.emissiveIntensity}
@@ -132,9 +133,9 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
                 scale={3}
                 distanceFactor={1}
                 rotation={[
-                  THREE.MathUtils.degToRad(90),
-                  THREE.MathUtils.degToRad(90),
-                  THREE.MathUtils.degToRad(-90),
+                  MathUtils.degToRad(90),
+                  MathUtils.degToRad(90),
+                  MathUtils.degToRad(-90),
                 ]}
               >
                 <button
@@ -195,9 +196,9 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
                 scale={1.5}
                 distanceFactor={1}
                 rotation={[
-                  THREE.MathUtils.degToRad(-90),
-                  THREE.MathUtils.degToRad(0),
-                  THREE.MathUtils.degToRad(0),
+                  MathUtils.degToRad(-90),
+                  MathUtils.degToRad(0),
+                  MathUtils.degToRad(0),
                 ]}
               />
             )}

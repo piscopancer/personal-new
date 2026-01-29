@@ -1,7 +1,7 @@
 import tailwindcss from "@tailwindcss/vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import react from "@vitejs/plugin-react"
-import * as path from "path"
+import { resolve as resolvePath } from "path"
 import { defineConfig } from "vite"
 
 export default defineConfig({
@@ -19,7 +19,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": resolvePath(__dirname, "./src"),
     },
   },
 })
