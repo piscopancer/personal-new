@@ -1,6 +1,7 @@
 import { useEventListener } from "@/hooks/use-event-listener"
 import { cn } from "@/util"
 import { animated, useSpring } from "@react-spring/web"
+import { useMatchRoute, useNavigate } from "@tanstack/react-router"
 import { Group } from "@visx/group"
 import { Arc } from "@visx/shape"
 import {
@@ -11,8 +12,8 @@ import {
   Users2Icon,
 } from "lucide-react"
 import { ComponentProps, useState } from "react"
-import colors from "tailwindcss/colors"
 import { MathUtils } from "three"
+import { ArrayIndices } from "type-fest"
 
 const AnimatedArc = animated(Arc)
 type AnimatedArcProps = ComponentProps<typeof AnimatedArc>
@@ -39,16 +40,37 @@ export default function ChatWheel({
   const centralCircleRadius = innerRadius - radialGap
 
   const sections = [
-    { start: -90, end: -30, color: colors.zinc[400] },
-    { start: -30, end: 30, color: colors.zinc[300] },
-    { start: 30, end: 90, color: colors.zinc[400] },
-  ]
+    [-90, -30],
+    [-30, 30],
+    [30, 90],
+  ] as const satisfies [number, number][]
+  type SectionI = ArrayIndices<typeof sections>
 
   const [show, setShow] = useState(false)
-  const [selected, setSelected] = useState<number | "back" | null>(null)
+  const [selected, setSelected] = useState<SectionI | "back" | null>(null)
 
-  function onSelect(sectionI: number) {
-    alert(sectionI)
+  function onSelect(section: NonNullable<typeof selected>) {
+    if (section === "back") {
+      navigate({
+        to: "/",
+      })
+      return
+    }
+    navigate({
+      to: "/chat",
+      search: {
+        q: (() => {
+          switch (section) {
+            case 0:
+              return "wyd"
+            case 1:
+              return "you"
+            case 2:
+              return "friends"
+          }
+        })(),
+      },
+    })
   }
 
   useEventListener("pointerup", () => {
@@ -58,6 +80,9 @@ export default function ChatWheel({
     }
   })
 
+  const navigate = useNavigate()
+  const matchRoute = useMatchRoute()
+  const inChatRoute = matchRoute({ to: "/chat", fuzzy: true })
   const midRadius = (innerRadius + outerRadius) / 2
   const icons = (
     [
@@ -76,36 +101,56 @@ export default function ChatWheel({
     <menu className="size-full relative">
       <svg width={width} height={height} className="block">
         <Group top={centerY} left={centerX}>
-          {sections.map((section, i) => (
-            <WheelSector
-              key={i}
-              show={show}
-              outerRadiusHidden={outerRadiusHidden}
-              outerRadius={outerRadius}
-              outerRadiusSelected={outerRadiusSelected}
-              isSelected={selected === i}
-              innerRadius={innerRadius}
-              startAngle={MathUtils.degToRad(section.start)}
-              endAngle={MathUtils.degToRad(section.end)}
-              padAngle={padAngle}
-              cornerRadius={10}
-              className={cn(
-                "transition-colors cursor-crosshair stroke-1 stroke-white",
-                show ? "" : "pointer-events-none",
-                selected === i
-                  ? "fill-white"
-                  : i === 1
-                    ? "fill-zinc-200/80"
-                    : "fill-zinc-400/80",
-              )}
-              onPointerUp={() => {
-                onSelect(i)
-              }}
-              onMouseEnter={() => setSelected(i)}
-              onMouseLeave={() => setSelected(null)}
-            />
-          ))}
-          {true && (
+          {sections.map((section, _i) => {
+            const i = _i as SectionI
+            return (
+              <WheelSector
+                key={i}
+                show={show}
+                outerRadiusHidden={outerRadiusHidden}
+                outerRadius={outerRadius}
+                outerRadiusSelected={outerRadiusSelected}
+                isSelected={selected === i}
+                innerRadius={innerRadius}
+                startAngle={MathUtils.degToRad(section[0])}
+                endAngle={MathUtils.degToRad(section[1])}
+                padAngle={padAngle}
+                cornerRadius={10}
+                className={cn(
+                  "transition-colors cursor-crosshair stroke-1 stroke-white",
+                  show ? "" : "pointer-events-none",
+                  selected === i
+                    ? "fill-white"
+                    : i === 1
+                      ? "fill-zinc-200/80"
+                      : "fill-zinc-400/80",
+                )}
+                onPointerUp={() => {
+                  if (i !== null) {
+                    onSelect(i)
+                  }
+                }}
+                onMouseEnter={() => setSelected(i)}
+                onMouseLeave={() => setSelected(null)}
+              />
+            )
+          })}
+          <circle
+            r={centralCircleRadius}
+            className="fill-zinc-200/70 active:fill-zinc-200 scale-90 active:scale-99 duration-150 stroke-1 stroke-white cursor-crosshair"
+            onPointerDown={() => {
+              setShow(true)
+            }}
+          />
+          <Arc
+            innerRadius={radius * 0}
+            outerRadius={radius * 0.3}
+            cornerRadius={10}
+            className="fill-zinc-200/50 pointer-events-none"
+            startAngle={MathUtils.degToRad(-90)}
+            endAngle={MathUtils.degToRad(90)}
+          />
+          {inChatRoute && (
             <WheelSector
               isSelected={selected === "back"}
               show={show}
@@ -122,27 +167,12 @@ export default function ChatWheel({
                 selected === "back" ? "fill-zinc-600" : "fill-zinc-700/80",
               )}
               onPointerUp={() => {
-                // todo go back
+                navigate({ to: "/" })
               }}
               onMouseEnter={() => setSelected("back")}
               onMouseLeave={() => setSelected(null)}
             />
           )}
-          <circle
-            r={centralCircleRadius}
-            className="fill-zinc-200/70 active:fill-zinc-200 scale-90 active:scale-99 duration-150 stroke-1 stroke-white cursor-crosshair"
-            onPointerDown={() => {
-              setShow(true)
-            }}
-          />
-          <Arc
-            innerRadius={radius * 0}
-            outerRadius={radius * 0.3}
-            cornerRadius={10}
-            className="fill-zinc-200/50 pointer-events-none"
-            startAngle={MathUtils.degToRad(-90)}
-            endAngle={MathUtils.degToRad(90)}
-          />
         </Group>
       </svg>
       {/* button icons */}
@@ -155,6 +185,9 @@ export default function ChatWheel({
           className="flex items-center justify-center relative"
         >
           {icons.map((icon, i) => {
+            if (!inChatRoute && i === 3) {
+              return null
+            }
             const angleRad = MathUtils.degToRad(icon.deg)
             const iconX = midRadius * Math.sin(angleRad)
             const iconY = -midRadius * Math.cos(angleRad)
