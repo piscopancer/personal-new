@@ -7,6 +7,6 @@ export const spotifyQueryOptions = queryOptions({
   queryFn: querySpotify,
 })
 
-export function useGithubQuery() {
+export function useSpotifySuspenseQuery() {
   return useSuspenseQuery(spotifyQueryOptions)
 }

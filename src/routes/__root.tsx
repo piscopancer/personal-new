@@ -1,4 +1,6 @@
 /// <reference types="vite/client" />
+import { githubQueryOptions } from "@/query/github"
+import { spotifyQueryOptions } from "@/query/spotify"
 import style from "@/style.css?url"
 import { QueryClient } from "@tanstack/react-query"
 import {
@@ -8,10 +10,24 @@ import {
   Scripts,
 } from "@tanstack/react-router"
 import type { ReactNode } from "react"
+import z from "zod"
 
 export const Route = createRootRouteWithContext<{
   qc: QueryClient
 }>()({
+  loader: async ({ context: { qc } }) => {
+    await Promise.allSettled([
+      qc.ensureQueryData(spotifyQueryOptions),
+      qc.ensureQueryData(githubQueryOptions),
+    ])
+  },
+  validateSearch(search) {
+    return z
+      .object({
+        chat: z.enum(["you", "friends", "wyd"]).optional().catch(undefined),
+      })
+      .parse(search)
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -26,14 +42,6 @@ export const Route = createRootRouteWithContext<{
   component: RootComponent,
 })
 
-function RootComponent() {
-  return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
-  )
-}
-
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html>
@@ -45,5 +53,13 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+function RootComponent() {
+  return (
+    <RootDocument>
+      <Outlet />
+    </RootDocument>
   )
 }

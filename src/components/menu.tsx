@@ -3,8 +3,8 @@ import ChatWheel from "./chat-wheel"
 
 export default function Menu() {
   return (
-    <div className='fixed inset-0 font-["Cascadia_Code"] flex'>
-      <menu className="mt-auto flex flex-col w-full">
+    <div className="fixed inset-0 flex pointer-events-none">
+      <menu className="mt-auto flex flex-col w-full pointer-events-auto">
         <div className="h-64">
           <ParentSize>
             {({ width, height }) => <ChatWheel width={width} height={height} />}
@@ -18,8 +18,21 @@ export default function Menu() {
           <a className="px-4 py-2 block hover:underline hover:text-zinc-400 cursor-pointer">
             github
           </a>
+          {/* <ErrorBoundary
+            FallbackComponent={({ error }) => (
+              <span>{(error as Error).message}</span>
+            )}
+          >
+            <GH />
+          </ErrorBoundary> */}
         </nav>
       </menu>
     </div>
   )
 }
+
+// function GH() {
+//   const ghQuery = useGithubSuspenceQuery()
+
+//   return <pre>{ghQuery.data[0].username}</pre>
+// }

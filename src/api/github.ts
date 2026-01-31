@@ -68,42 +68,45 @@ query {
 export const queryGithub = createServerFn({ method: "GET" }).handler(
   async () => {
     const now = Temporal.Now.zonedDateTimeISO("utc")
-    const response = await ghBaseApi
-      .post<GitHubSearchUsersResponse>("graphql", {
-        json: { query },
-      })
-      .json()
-    const users = response.data.search.nodes
-    const followingMap = new Map<string, Set<string>>()
-    for (const user of users) {
-      const follows = new Set(user.following.nodes.map((n) => n.login))
-      followingMap.set(user.login, follows)
-    }
-    return users.map((user) => {
-      const myFollowing = followingMap.get(user.login)!
-      const mutualFriends = friendsAndMe
-        .filter((other) => other !== user.login)
-        .filter((other) => {
-          const theyFollowMe = followingMap.get(other)?.has(user.login) ?? false
-          const iFollowHim = myFollowing.has(other)
-          return iFollowHim && theyFollowMe
+    try {
+      const response = await ghBaseApi
+        .post<GitHubSearchUsersResponse>("graphql", { json: { query } })
+        .json()
+      const users = response.data.search.nodes
+      const followingMap = new Map()
+      for (const user of users) {
+        const follows = new Set(user.following.nodes.map((n) => n.login))
+        followingMap.set(user.login, follows)
+      }
+      return users.map((user) => {
+        const myFollowing = followingMap.get(user.login) || new Set()
+        const mutualFriends = friendsAndMe
+          .filter((other) => other !== user.login)
+          .filter((other) => {
+            const theyFollowMe =
+              followingMap.get(other)?.has(user.login) ?? false
+            const iFollowHim = myFollowing.has(other)
+            return iFollowHim && theyFollowMe
+          })
+        const repos = user.repositories.nodes.map((repo) => {
+          const createdAt = Temporal.Instant.from(
+            repo.createdAt,
+          ).toZonedDateTimeISO("utc")
+          const diff = createdAt.since(now, { largestUnit: "day" }).days
+          return {
+            name: repo.name,
+            created: rtf.format(diff, "day"),
+            stars: repo.stargazerCount,
+          }
         })
-      const repos = user.repositories.nodes.map((repo) => {
-        const createdAt = Temporal.Instant.from(
-          repo.createdAt,
-        ).toZonedDateTimeISO("utc")
-        const diff = createdAt.since(now, { largestUnit: "day" }).days
         return {
-          name: repo.name,
-          created: rtf.format(diff, "day"),
-          stars: repo.stargazerCount,
+          username: user.login,
+          mutualFriends,
+          repos,
         }
       })
-      return {
-        username: user.login,
-        mutualFriends,
-        repos,
-      }
-    })
+    } catch (error) {
+      throw error
+    }
   },
 )

@@ -1,7 +1,8 @@
 import { useEventListener } from "@/hooks/use-event-listener"
+import { Route } from "@/routes/__root"
 import { cn } from "@/util"
 import { animated, useSpring } from "@react-spring/web"
-import { useMatchRoute, useNavigate } from "@tanstack/react-router"
+import { useNavigate } from "@tanstack/react-router"
 import { Group } from "@visx/group"
 import { Arc } from "@visx/shape"
 import {
@@ -49,17 +50,22 @@ export default function ChatWheel({
   const [show, setShow] = useState(false)
   const [selected, setSelected] = useState<SectionI | "back" | null>(null)
 
+  const navigate = useNavigate({ from: Route.fullPath })
+
   function onSelect(section: NonNullable<typeof selected>) {
     if (section === "back") {
       navigate({
-        to: "/",
+        search: (prev) => ({
+          ...prev,
+          chat: undefined,
+        }),
       })
       return
     }
     navigate({
-      to: "/chat",
-      search: {
-        q: (() => {
+      search: (prev) => ({
+        ...prev,
+        chat: (() => {
           switch (section) {
             case 0:
               return "wyd"
@@ -69,7 +75,7 @@ export default function ChatWheel({
               return "friends"
           }
         })(),
-      },
+      }),
     })
   }
 
@@ -80,9 +86,8 @@ export default function ChatWheel({
     }
   })
 
-  const navigate = useNavigate()
-  const matchRoute = useMatchRoute()
-  const inChatRoute = matchRoute({ to: "/chat", fuzzy: true })
+  const sp = Route.useSearch()
+  const inChatRoute = sp.chat !== null
   const midRadius = (innerRadius + outerRadius) / 2
   const icons = (
     [
@@ -167,7 +172,7 @@ export default function ChatWheel({
                 selected === "back" ? "fill-zinc-600" : "fill-zinc-700/80",
               )}
               onPointerUp={() => {
-                navigate({ to: "/" })
+                onSelect("back")
               }}
               onMouseEnter={() => setSelected("back")}
               onMouseLeave={() => setSelected(null)}
