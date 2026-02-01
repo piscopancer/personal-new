@@ -50,7 +50,7 @@ export default function Scene() {
     [planetHovered],
   )
 
-  // const friendsSpring = useSpring({})
+  const friendsSpring = useSpring({})
 
   return (
     <div className="h-screen bg-zinc-950">
