@@ -1,9 +1,8 @@
 import mercurialWorld from "@/assets/mercurial_world.jpeg"
 import SpotifyIcon from "@/assets/spotify"
-import { animated, useSpring } from "@react-spring/three"
+import { a, useSpring } from "@react-spring/three"
 import { Center, Html, Outlines, RoundedBox } from "@react-three/drei"
 import type { HtmlProps } from "@react-three/drei/web/Html"
-import { type ThreeElements } from "@react-three/fiber"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -21,12 +20,12 @@ import {
 } from "react"
 import { DataTexture, MathUtils, NearestFilter, RedFormat } from "three"
 
-const AnimatedRoundedBox = animated(RoundedBox)
-const AnimatedMeshToonMaterial = animated("meshToonMaterial")
+const AnimatedRoundedBox = a(RoundedBox)
+const AnimatedMeshToonMaterial = a("meshToonMaterial")
 
 type HeadphonesProps = {
   headWidth: number
-} & ThreeElements["group"]
+} & ComponentProps<typeof a.group>
 
 const headphonesColor = "#6912de"
 const headphonesColor2 = "#9226eb"
@@ -86,7 +85,7 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
   })
 
   return (
-    <group {...props}>
+    <a.group {...props}>
       {([-1, 1] as const).map((side) => (
         <Fragment key={side}>
           <Center
@@ -217,7 +216,7 @@ export default function Headphones({ headWidth, ...props }: HeadphonesProps) {
           </Center>
         </Fragment>
       ))}
-    </group>
+    </a.group>
   )
 }
 

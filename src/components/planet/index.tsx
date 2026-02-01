@@ -1,6 +1,8 @@
-import { a } from "@react-spring/three"
+import { useStore } from "@/store"
+import { a, useSpring } from "@react-spring/three"
 import { Html, Outlines, RoundedBox } from "@react-three/drei"
-import { ComponentProps } from "react"
+import { ComponentProps, useState } from "react"
+import { MathUtils } from "three"
 import Headphones from "./headphones"
 
 const AnimatedRoundedBox = a(RoundedBox)
@@ -17,6 +19,42 @@ export default function Planet({
   setHovered,
   ...props
 }: PlanetProps) {
+  const [stateSnap] = useStore()
+
+  const [headphonesSpring] = useSpring(
+    {
+      ...(stateSnap.selectingChatOption
+        ? {
+            posX: 0,
+            posY: 0.5,
+            posZ: 0,
+            rotX: -50,
+          }
+        : {
+            posX: 0,
+            posY: 0,
+            posZ: 0,
+            rotX: 0,
+          }),
+      config: {
+        tension: 500,
+      },
+    },
+    [stateSnap.selectingChatOption],
+  )
+
+  const [tapped, setTapped] = useState(false)
+  const [planetSpring] = useSpring(
+    {
+      scaleY: tapped ? 0.9 : 1,
+      config: {
+        friction: 10,
+        tension: 500,
+      },
+    },
+    [tapped],
+  )
+
   return (
     <a.group {...props}>
       <AnimatedRoundedBox
@@ -24,8 +62,20 @@ export default function Planet({
         radius={0.1}
         smoothness={4}
         bevelSegments={4}
-        onPointerOver={() => setHovered?.(true)}
-        onPointerOut={() => setHovered?.(false)}
+        scale-y={planetSpring.scaleY}
+        onPointerDown={() => {
+          setTapped(true)
+        }}
+        onPointerUp={() => {
+          setTapped(false)
+        }}
+        onPointerEnter={() => setHovered?.(true)}
+        onPointerLeave={() => {
+          if (tapped) {
+            setTapped(false)
+          }
+          setHovered?.(false)
+        }}
       >
         <meshToonMaterial transparent opacity={0.98} color="#111111" />
         <Outlines thickness={2} color={"#ffffff"} transparent opacity={1} />
@@ -45,7 +95,13 @@ export default function Planet({
           </div>
         </Html>
       </AnimatedRoundedBox>
-      <Headphones headWidth={1} position={[0, 0, 0]} />
+      <Headphones
+        headWidth={1}
+        position-x={headphonesSpring.posX}
+        position-y={headphonesSpring.posY}
+        position-z={headphonesSpring.posZ}
+        rotation-x={headphonesSpring.rotX.to((v) => MathUtils.degToRad(v))}
+      />
     </a.group>
   )
 }

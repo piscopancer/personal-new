@@ -1,9 +1,12 @@
 import Planet from "@/components/planet"
 import { Route } from "@/routes/__root"
+import { store } from "@/store"
+import { cn } from "@/util"
 import { easings, useSpring } from "@react-spring/three"
 import { Canvas } from "@react-three/fiber"
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing"
 import { ClientOnly } from "@tanstack/react-router"
+import { useAtom } from "jotai/react"
 import { useState } from "react"
 import { MathUtils } from "three"
 import DarkSphere from "./dark-sphere"
@@ -11,6 +14,7 @@ import RotatingStars from "./stars"
 
 export default function Scene() {
   const sp = Route.useSearch()
+  const [stateSnap, setState] = useAtom(store)
 
   const darkSphereSpring = useSpring({
     opacity: sp.chat ? 0.9 : 0,
@@ -19,9 +23,9 @@ export default function Scene() {
     },
   })
 
-  const [planetHovered, setPlanetHovered] = useState(false)
+  const [planetHovered, setPlanetHowever] = useState(false)
   const [planetSpring] = useSpring(
-    planetHovered
+    stateSnap.selectingChatOption
       ? {
           rotX: 0,
           rotY: 0,
@@ -45,15 +49,18 @@ export default function Scene() {
             easing: easings.linear,
           },
           loop: true,
-          onChange: (r) => console.log(r.value),
         },
-    [planetHovered],
+    [stateSnap.selectingChatOption],
   )
 
   const friendsSpring = useSpring({})
 
   return (
-    <div className="h-screen bg-zinc-950">
+    <div
+      className={cn("h-screen bg-zinc-950", {
+        "cursor-pointer": planetHovered,
+      })}
+    >
       <ClientOnly fallback={null}>
         <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
           <ambientLight intensity={0.1} />
@@ -69,7 +76,9 @@ export default function Scene() {
             rotation-y={planetSpring.rotY.to((v) => MathUtils.degToRad(v))}
             rotation-z={planetSpring.rotZ.to((v) => MathUtils.degToRad(v))}
             hovered={planetHovered}
-            setHovered={setPlanetHovered}
+            setHovered={(v) => {
+              setPlanetHowever(v)
+            }}
           />
           <EffectComposer>
             <Bloom

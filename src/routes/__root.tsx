@@ -2,6 +2,7 @@
 import { githubQueryOptions } from "@/query/github"
 import { spotifyQueryOptions } from "@/query/spotify"
 import style from "@/style.css?url"
+import { searchParamsSchema } from "@/util"
 import { QueryClient } from "@tanstack/react-query"
 import {
   createRootRouteWithContext,
@@ -10,7 +11,6 @@ import {
   Scripts,
 } from "@tanstack/react-router"
 import type { ReactNode } from "react"
-import z from "zod"
 
 export const Route = createRootRouteWithContext<{
   qc: QueryClient
@@ -22,11 +22,7 @@ export const Route = createRootRouteWithContext<{
     ])
   },
   validateSearch(search) {
-    return z
-      .object({
-        chat: z.enum(["you", "friends", "wyd"]).optional().catch(undefined),
-      })
-      .parse(search)
+    return searchParamsSchema.parse(search)
   },
   head: () => ({
     meta: [

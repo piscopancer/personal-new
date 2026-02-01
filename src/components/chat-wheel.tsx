@@ -1,6 +1,7 @@
 import { useEventListener } from "@/hooks/use-event-listener"
 import { Route } from "@/routes/__root"
-import { cn } from "@/util"
+import { useSetStore } from "@/store"
+import { chain, chatOptions, cn } from "@/util"
 import { animated, useSpring } from "@react-spring/web"
 import { useNavigate } from "@tanstack/react-router"
 import { Group } from "@visx/group"
@@ -13,11 +14,38 @@ import {
   Users2Icon,
 } from "lucide-react"
 import { ComponentProps, useState } from "react"
+import { map } from "remeda"
 import { MathUtils } from "three"
-import { ArrayIndices } from "type-fest"
 
 const AnimatedArc = animated(Arc)
 type AnimatedArcProps = ComponentProps<typeof AnimatedArc>
+
+const sectionsIds = [...chatOptions, "back"] as const
+
+type SectionId = (typeof sectionsIds)[number]
+const sections = chain(
+  createSections({
+    totalDeg: 360,
+    fromDeg: -90,
+    sections: [1, 1, 1, 3] as const,
+  }),
+)
+  .next((ss) => {
+    const icons = [
+      BriefcaseBusinessIcon,
+      User2Icon,
+      Users2Icon,
+      Undo2Icon,
+    ] as const
+    const dim = [false, false, false, true] as const
+    return map(ss, (s, i) => ({
+      section: s,
+      option: sectionsIds[i],
+      dim: dim[i],
+      icon: icons[i],
+    }))
+  })
+  .done()
 
 export default function ChatWheel({
   width,
@@ -40,15 +68,8 @@ export default function ChatWheel({
   const radialGap = innerRadius * padAngle * 2
   const centralCircleRadius = innerRadius - radialGap
 
-  const sections = [
-    [-90, -30],
-    [-30, 30],
-    [30, 90],
-  ] as const satisfies [number, number][]
-  type SectionI = ArrayIndices<typeof sections>
-
   const [show, setShow] = useState(false)
-  const [selected, setSelected] = useState<SectionI | "back" | null>(null)
+  const [selected, setSelected] = useState<SectionId | null>(null)
 
   const navigate = useNavigate({ from: Route.fullPath })
 
@@ -65,16 +86,7 @@ export default function ChatWheel({
     navigate({
       search: (prev) => ({
         ...prev,
-        chat: (() => {
-          switch (section) {
-            case 0:
-              return "wyd"
-            case 1:
-              return "you"
-            case 2:
-              return "friends"
-          }
-        })(),
+        chat: section,
       }),
     })
   }
@@ -82,61 +94,58 @@ export default function ChatWheel({
   useEventListener("pointerup", () => {
     if (show) {
       setShow(false)
+      setStore((d) => {
+        d.selectingChatOption = false
+      })
       setSelected(null)
     }
   })
 
   const sp = Route.useSearch()
-  const inChatRoute = sp.chat !== null
+  const inChatRoute = !!sp.chat
   const midRadius = (innerRadius + outerRadius) / 2
-  const icons = (
-    [
-      [-60, BriefcaseBusinessIcon, false],
-      [0, User2Icon, false],
-      [60, Users2Icon, false],
-      [180, Undo2Icon, true],
-    ] as const
-  ).map(([deg, icon, onDark]) => ({
-    deg,
-    icon,
-    onDark,
-  }))
+
+  const setStore = useSetStore()
 
   return (
     <menu className="size-full relative">
       <svg width={width} height={height} className="block">
         <Group top={centerY} left={centerX}>
-          {sections.map((section, _i) => {
-            const i = _i as SectionI
+          {sections.map(({ option, section, dim }, i) => {
             return (
               <WheelSector
                 key={i}
-                show={show}
+                show={!(!show || (!inChatRoute && option === "back"))}
                 outerRadiusHidden={outerRadiusHidden}
                 outerRadius={outerRadius}
                 outerRadiusSelected={outerRadiusSelected}
-                isSelected={selected === i}
+                isSelected={selected === option}
                 innerRadius={innerRadius}
-                startAngle={MathUtils.degToRad(section[0])}
-                endAngle={MathUtils.degToRad(section[1])}
+                startAngle={MathUtils.degToRad(section.range[0])}
+                endAngle={MathUtils.degToRad(section.range[1])}
                 padAngle={padAngle}
                 cornerRadius={10}
                 className={cn(
-                  "transition-colors cursor-crosshair stroke-1 stroke-white",
-                  show ? "" : "pointer-events-none",
-                  selected === i
-                    ? "fill-white"
-                    : i === 1
-                      ? "fill-zinc-200/80"
-                      : "fill-zinc-400/80",
+                  "transition-colors cursor-crosshair stroke-1",
+                  { "pointer-events-none": !show },
+                  dim
+                    ? "stroke-zinc-400 fill-zinc-700/80"
+                    : "stroke-white fill-zinc-400/80",
+                  {
+                    "fill-zinc-200/80": option === "you",
+                    "fill-white": !dim && option === selected,
+                    "fill-zinc-600": dim && option === selected,
+                  },
                 )}
                 onPointerUp={() => {
-                  if (i !== null) {
-                    onSelect(i)
-                  }
+                  onSelect(option)
                 }}
-                onMouseEnter={() => setSelected(i)}
-                onMouseLeave={() => setSelected(null)}
+                onMouseEnter={() => {
+                  setSelected(option)
+                }}
+                onMouseLeave={() => {
+                  setSelected(null)
+                }}
               />
             )
           })}
@@ -145,6 +154,9 @@ export default function ChatWheel({
             className="fill-zinc-200/70 active:fill-zinc-200 scale-90 active:scale-99 duration-150 stroke-1 stroke-white cursor-crosshair"
             onPointerDown={() => {
               setShow(true)
+              setStore((d) => {
+                d.selectingChatOption = true
+              })
             }}
           />
           <Arc
@@ -155,29 +167,6 @@ export default function ChatWheel({
             startAngle={MathUtils.degToRad(-90)}
             endAngle={MathUtils.degToRad(90)}
           />
-          {inChatRoute && (
-            <WheelSector
-              isSelected={selected === "back"}
-              show={show}
-              outerRadiusHidden={outerRadiusHidden}
-              outerRadius={outerRadius}
-              outerRadiusSelected={outerRadiusSelected}
-              innerRadius={innerRadius}
-              startAngle={MathUtils.degToRad(90)}
-              endAngle={MathUtils.degToRad(270)}
-              padAngle={padAngle}
-              cornerRadius={10}
-              className={cn(
-                "transition-colors cursor-crosshair stroke-1 stroke-zinc-400",
-                selected === "back" ? "fill-zinc-600" : "fill-zinc-700/80",
-              )}
-              onPointerUp={() => {
-                onSelect("back")
-              }}
-              onMouseEnter={() => setSelected("back")}
-              onMouseLeave={() => setSelected(null)}
-            />
-          )}
         </Group>
       </svg>
       {/* button icons */}
@@ -189,24 +178,24 @@ export default function ChatWheel({
           }}
           className="flex items-center justify-center relative"
         >
-          {icons.map((icon, i) => {
-            if (!inChatRoute && i === 3) {
-              return null
-            }
-            const angleRad = MathUtils.degToRad(icon.deg)
+          {sections.map((section, i) => {
+            const angleRad = MathUtils.degToRad(section.section.dirDeg)
             const iconX = midRadius * Math.sin(angleRad)
             const iconY = -midRadius * Math.cos(angleRad)
             return (
-              <icon.icon
+              <section.icon
                 key={i}
                 style={{
                   top: radius + iconY,
                   left: radius + iconX,
                 }}
                 className={cn(
-                  "absolute -translate-1/2 duration-100",
-                  show ? "size-1/10 opacity-100" : "size-0 opacity-0",
-                  icon.onDark ? "stroke-white" : "stroke-black",
+                  "absolute -translate-1/2 duration-100 stroke-black size-1/10",
+                  {
+                    "size-0 opacity-0":
+                      !show || (!inChatRoute && section.option === "back"),
+                  },
+                  { "stroke-white": section.dim },
                 )}
               />
             )
@@ -247,8 +236,8 @@ function WheelSector({
       : outerRadiusHidden,
     opacity: show ? 1 : 0,
     config: {
-      tension: 1000, // Сильно увеличили силу
-      friction: 40, // Достаточно трения, чтобы не было лишней тряски (bounce)
+      tension: 1000,
+      friction: 40,
     },
   })
 
@@ -259,4 +248,29 @@ function WheelSector({
       {...props}
     />
   )
+}
+
+function createSections<const S extends number[]>({
+  fromDeg = 0,
+  totalDeg = 360,
+  sections,
+}: {
+  fromDeg?: number
+  totalDeg: number
+  sections: S
+}) {
+  let degFilled = 0
+  return map(sections, (sectionSpan) => {
+    const degPerSection = totalDeg / sections.reduce((l, r) => l + r)
+    const sectionDeg = degPerSection * sectionSpan
+    console.log(degFilled)
+    const sectionFromDeg = fromDeg + degFilled
+    degFilled += sectionDeg
+    const sectionToDeg = sectionFromDeg + sectionDeg
+    const dirDeg = (sectionFromDeg + sectionToDeg) / 2
+    return {
+      range: [sectionFromDeg, sectionToDeg] as const,
+      dirDeg,
+    }
+  })
 }
