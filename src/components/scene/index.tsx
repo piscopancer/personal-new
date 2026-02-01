@@ -1,6 +1,6 @@
 import Planet from "@/components/planet"
 import { Route } from "@/routes/__root"
-import { useSpring } from "@react-spring/three"
+import { easings, useSpring } from "@react-spring/three"
 import { Canvas } from "@react-three/fiber"
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing"
 import { ClientOnly } from "@tanstack/react-router"
@@ -21,32 +21,32 @@ export default function Scene() {
 
   const [planetHovered, setPlanetHovered] = useState(false)
   const [planetSpring] = useSpring(
-    () =>
-      planetHovered
-        ? {
+    planetHovered
+      ? {
+          rotX: 0,
+          rotY: 0,
+          rotZ: 0,
+          config: {
+            duration: 500,
+            easing: easings.easeOutBack,
+          },
+        }
+      : {
+          rotX: 3, // bob
+          rotY: -360, // spin
+          rotZ: -10, // roll
+          from: {
             rotX: 0,
             rotY: 0,
-            rotZ: 0,
-            config: {
-              duration: 1000,
-            },
-          }
-        : {
-            rotX: 1, // bob
-            rotY: 30,
-            rotZ: 30,
-            // from: [
-            //   {
-            //     rotX: 0,
-            //     rotY: 360,
-            //   },
-            // ],
-            config: {
-              duration: 3000,
-            },
-            loop: true,
-            onChange: (r) => console.log(r.value),
+            rotZ: -10,
           },
+          config: {
+            duration: 30000,
+            easing: easings.linear,
+          },
+          loop: true,
+          onChange: (r) => console.log(r.value),
+        },
     [planetHovered],
   )
 
@@ -62,11 +62,13 @@ export default function Scene() {
           <RotatingStars />
           <DarkSphere opacity={darkSphereSpring.opacity.get()} />
           <Planet
-            rotation={[
-              planetSpring.rotX.to((x) => MathUtils.degToRad(x)),
-              planetSpring.rotY.to((y) => MathUtils.degToRad(y)),
-              planetSpring.rotZ.to((z) => MathUtils.degToRad(z)),
-            ]}
+            rotation-x={planetSpring.rotX.to({
+              range: [0, 1, 2, 3],
+              output: [0, 15, -15, 0].map((v) => MathUtils.degToRad(v ?? 0)),
+              easing: easings.easeInOutCubic,
+            })}
+            rotation-y={planetSpring.rotY.to((v) => MathUtils.degToRad(v))}
+            rotation-z={planetSpring.rotZ.to((v) => MathUtils.degToRad(v))}
             hovered={planetHovered}
             setHovered={setPlanetHovered}
           />
