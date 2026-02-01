@@ -55,7 +55,6 @@ export default function Scene() {
   return (
     <div className="h-screen bg-zinc-950">
       <ClientOnly fallback={null}>
-        {/* <OrchestratorContextProvider value={orch}> */}
         <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
           <ambientLight intensity={0.1} />
           <directionalLight position={[5, 5, 5]} intensity={2} />
@@ -82,7 +81,6 @@ export default function Scene() {
             <Vignette eskil={false} offset={0.1} darkness={1.1} />
           </EffectComposer>
         </Canvas>
-        {/* </OrchestratorContextProvider> */}
       </ClientOnly>
     </div>
   )
