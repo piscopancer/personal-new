@@ -16,10 +16,10 @@ export default function RotatingStars() {
       ref={starsRef}
       radius={100}
       count={5000}
-      factor={10}
+      factor={4}
       fade
       speed={1}
-      depth={50}
+      depth={0}
     />
   )
 }
