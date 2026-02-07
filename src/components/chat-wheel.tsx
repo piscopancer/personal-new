@@ -1,6 +1,7 @@
+import { useAudio } from "@/assets/audio"
 import { useEventListener } from "@/hooks/use-event-listener"
 import { Route } from "@/routes/__root"
-import { useSetStore } from "@/store"
+import { useStore } from "@/store"
 import { chain, chatOptions, cn } from "@/util"
 import { animated, useSpring } from "@react-spring/web"
 import { useNavigate } from "@tanstack/react-router"
@@ -32,9 +33,9 @@ const sections = chain(
 )
   .next((ss) => {
     const icons = [
-      BriefcaseBusinessIcon,
-      User2Icon,
       Users2Icon,
+      User2Icon,
+      BriefcaseBusinessIcon,
       Undo2Icon,
     ] as const
     const dim = [false, false, false, true] as const
@@ -67,13 +68,18 @@ export default function ChatWheel({
 
   const radialGap = innerRadius * padAngle * 2
   const centralCircleRadius = innerRadius - radialGap
+  const midRadius = (innerRadius + outerRadius) / 2
 
   const [show, setShow] = useState(false)
-  const [selected, setSelected] = useState<SectionId | null>(null)
+  const [storeSnap, setStore] = useStore()
+  const confirmAudio = useAudio("confirm")
+  const typewriterAudio = useAudio("typewriter")
 
   const navigate = useNavigate({ from: Route.fullPath })
+  const sp = Route.useSearch()
+  const inChatRoute = !!sp.chat
 
-  function onSelect(section: NonNullable<typeof selected>) {
+  function onSelect(section: SectionId) {
     if (section === "back") {
       navigate({
         search: (prev) => ({
@@ -97,15 +103,8 @@ export default function ChatWheel({
       setStore((d) => {
         d.selectingChatOption = false
       })
-      setSelected(null)
     }
   })
-
-  const sp = Route.useSearch()
-  const inChatRoute = !!sp.chat
-  const midRadius = (innerRadius + outerRadius) / 2
-
-  const setStore = useSetStore()
 
   return (
     <menu className="size-full relative">
@@ -119,7 +118,7 @@ export default function ChatWheel({
                 outerRadiusHidden={outerRadiusHidden}
                 outerRadius={outerRadius}
                 outerRadiusSelected={outerRadiusSelected}
-                isSelected={selected === option}
+                isSelected={storeSnap.selectingChatOption === option}
                 innerRadius={innerRadius}
                 startAngle={MathUtils.degToRad(section.range[0])}
                 endAngle={MathUtils.degToRad(section.range[1])}
@@ -133,18 +132,25 @@ export default function ChatWheel({
                     : "stroke-white fill-zinc-400/80",
                   {
                     "fill-zinc-200/80": option === "you",
-                    "fill-white": !dim && option === selected,
-                    "fill-zinc-600": dim && option === selected,
+                    "fill-white":
+                      !dim && option === storeSnap.selectingChatOption,
+                    "fill-zinc-600":
+                      dim && option === storeSnap.selectingChatOption,
                   },
                 )}
                 onPointerUp={() => {
                   onSelect(option)
                 }}
                 onMouseEnter={() => {
-                  setSelected(option)
+                  typewriterAudio.playOverlap()
+                  setStore((d) => {
+                    d.selectingChatOption = option === "back" ? false : option
+                  })
                 }}
                 onMouseLeave={() => {
-                  setSelected(null)
+                  setStore((d) => {
+                    d.selectingChatOption = false
+                  })
                 }}
               />
             )
@@ -153,6 +159,7 @@ export default function ChatWheel({
             r={centralCircleRadius}
             className="fill-zinc-200/70 active:fill-zinc-200 scale-90 active:scale-99 duration-150 stroke-1 stroke-white cursor-crosshair"
             onPointerDown={() => {
+              confirmAudio.playOverlap()
               setShow(true)
               setStore((d) => {
                 d.selectingChatOption = true
@@ -263,7 +270,6 @@ function createSections<const S extends number[]>({
   return map(sections, (sectionSpan) => {
     const degPerSection = totalDeg / sections.reduce((l, r) => l + r)
     const sectionDeg = degPerSection * sectionSpan
-    console.log(degFilled)
     const sectionFromDeg = fromDeg + degFilled
     degFilled += sectionDeg
     const sectionToDeg = sectionFromDeg + sectionDeg

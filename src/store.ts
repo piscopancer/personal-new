@@ -1,7 +1,12 @@
 import { atomWithImmer } from "jotai-immer"
 import { useAtom, useAtomValue, useSetAtom } from "jotai/react"
+import { ChatOption } from "./util"
 
-export const store = atomWithImmer({
+type Store = {
+  selectingChatOption: ChatOption | boolean
+}
+
+export const store = atomWithImmer<Store>({
   selectingChatOption: false,
 })
 

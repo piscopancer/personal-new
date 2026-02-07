@@ -9,7 +9,7 @@ export default function Scene() {
   const { selectingChatOption } = useStoreValue()
   const [value] = useSpring(
     {
-      sphereOpacity: selectingChatOption ? 1 : 0,
+      sphereOpacity: selectingChatOption ? 0.9 : 0,
     },
     [selectingChatOption],
   )
@@ -20,17 +20,18 @@ export default function Scene() {
         "absolute top-0 left-0 h-screen w-screen pointer-events-none",
       )}
     >
-      <RotatingStars />
       <mesh>
-        <sphereGeometry args={[100]} />
+        <sphereGeometry args={[10]} />
         <animated.meshBasicMaterial
-          // depthWrite={false}
+          toneMapped={false}
+          reflectivity={0}
           side={BackSide}
           opacity={value.sphereOpacity}
           transparent
           color="#09090b"
         />
       </mesh>
+      <RotatingStars />
     </View>
   )
 }

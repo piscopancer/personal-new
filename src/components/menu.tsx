@@ -1,25 +1,54 @@
+import { Friend } from "@/api/github"
+import { githubQueryOptions } from "@/query/github"
 import { Route } from "@/routes/__root"
-import { store } from "@/store"
+import { useStoreValue } from "@/store"
 import { cn } from "@/util"
 import { easings, useSpring } from "@react-spring/three"
 import { View, ViewProps } from "@react-three/drei"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { ParentSize } from "@visx/responsive"
-import { useAtom } from "jotai/react"
+import { AnimatePresence, motion } from "motion/react"
 import { useState } from "react"
 import { MathUtils } from "three"
+import { match } from "ts-pattern"
 import ChatWheel from "./chat-wheel"
 import Planet from "./planet"
+import PlanetFriends from "./scene/planet-friends"
 
 export default function Menu() {
+  const { selectingChatOption } = useStoreValue()
   return (
     <div className="fixed top-0 left-0 h-screen w-screen flex flex-col">
       <header className="h-24"></header>
-      <MainView className="grow w-full" index={1} />
-      <section className="h-80 flex flex-col bg-linear-to-b from-transparent to-zinc-950">
-        <div className="grow ">
-          <ParentSize className="pointer-events-auto">
-            {({ width, height }) => <ChatWheel width={width} height={height} />}
-          </ParentSize>
+      <div className="grow flex items-center justify-center">
+        <MainView className="size-full overflow-visible" />
+      </div>
+      <section className="flex flex-col bg-linear-to-b from-transparent to-zinc-950">
+        <div className="w-full">
+          <AnimatePresence mode="popLayout">
+            <motion.p
+              key={String(selectingChatOption)}
+              exit={{ y: -10, opacity: 0.5, scaleY: 0 }}
+              animate={{ y: 0, opacity: 1, scaleY: 1 }}
+              initial={{ y: 10, opacity: 0.5, scaleY: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="text-zinc-200 h-lh text-center mb-4"
+            >
+              {match(selectingChatOption)
+                .with("friends", () => "Кто твои друзья?")
+                .with("wyd", () => "Чем ты занимаешься?")
+                .with("you", () => "Кто ты?")
+                .with(true, () => "...")
+                .otherwise(() => null)}
+            </motion.p>
+          </AnimatePresence>
+          <div className="h-64">
+            <ParentSize className="pointer-events-auto">
+              {({ width, height }) => (
+                <ChatWheel width={width} height={height} />
+              )}
+            </ParentSize>
+          </div>
         </div>
         <nav className="text-sm text-zinc-500 justify-center flex items-center">
           <a className="px-4 py-2 block hover:underline hover:text-zinc-400 cursor-pointer">
@@ -44,11 +73,12 @@ export default function Menu() {
 
 function MainView(props: ViewProps) {
   const sp = Route.useSearch()
-  const [stateSnap, setState] = useAtom(store)
+  const storeSnap = useStoreValue()
+  const { data: friends } = useSuspenseQuery(githubQueryOptions)
 
   const [planetHovered, setPlanetHowever] = useState(false)
   const [planetSpring] = useSpring(
-    stateSnap.selectingChatOption
+    storeSnap.selectingChatOption
       ? {
           rotX: 0,
           rotY: 0,
@@ -73,7 +103,7 @@ function MainView(props: ViewProps) {
           },
           loop: true,
         },
-    [stateSnap.selectingChatOption],
+    [storeSnap.selectingChatOption],
   )
 
   const friendsSpring = useSpring({})
@@ -104,6 +134,13 @@ function MainView(props: ViewProps) {
           setPlanetHowever(v)
         }}
       />
+      {sp.chat === "friends" && (
+        <PlanetFriends
+          friends={friends
+            .filter((f) => f.username !== "piscopancer")
+            .map((f) => ({ name: f.username as Friend }))}
+        />
+      )}
     </View>
   )
 }

@@ -10,10 +10,10 @@ const ghBaseApi = ky.create({
 })
 
 type GitHubUserNode = {
-  login: string
+  login: FriendOrMe
   following: {
     nodes: {
-      login: string
+      login: FriendOrMe & string
     }[]
   }
   repositories: {
@@ -34,13 +34,17 @@ type GitHubSearchUsersResponse = {
 }
 
 const rtf = new Intl.RelativeTimeFormat("ru", { numeric: "auto" })
-const friendsAndMe = [
-  "piscopancer",
+const friends = [
   "nekoreal",
   "mentoltea",
   "vladislavean",
   "kurtkabeina12",
-]
+] as const
+const friendsAndMe = [...friends, "piscopancer"] as const
+
+export type Friend = (typeof friends)[number]
+export type FriendOrMe = (typeof friendsAndMe)[number]
+
 const friendsAndMeQuery = friendsAndMe.map((f) => `user:${f}`).join(" ")
 
 const query = /*gql*/ `

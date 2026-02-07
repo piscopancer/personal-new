@@ -40,7 +40,7 @@ export const Route = createRootRouteWithContext<{
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+    <html className="scheme-only-dark [scrollbar-width:thin]">
       <head>
         <HeadContent />
       </head>
